@@ -43,7 +43,7 @@ maketars: $(chroottardir) $(chroottars)
 
 # $(packagesintmpinchroot):
 #$(reportpackages): $$(chrootdir)/tmp/$$(subst .,,$$(suffix $$@))/$$(basename $$(notdir $$@))
-# prereq = $(srpmsincache)
+# prereq = cache $(srpmsincache) report
 $(reportpackages): $(cachedir) $$(cachedir)/$$(basename $$(notdir $$@))
 	#echo p=$@ arch=$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
 
@@ -61,7 +61,7 @@ garbage:
 	#touch $@
 
 # prereq = $(packagesintmpinchroot)
-$(srpmsincache): $$(chrootdir)/tmp/$$(word 1,$$(archs))/$$(notdir $$@)
+$(srpmsincache): $(chrootdir)/tmp/$(word 1,$(archs))/ $$(chrootdir)/tmp/$$(word 1,$$(archs))/$$(notdir $$@)
 	@echo srpmsincache $@ $(chrootdir)/tmp/*/$(notdir $@)
 	cp $(chrootdir)/tmp/*/$(notdir $@) $@
 
@@ -70,7 +70,7 @@ $(tmpinchroot):
 
 #$(packagesintmpinchroot): $$(chrootdir)/$$(strip $$(foreach a,$$(archs),$$(findstring $$(a),$$@)))
 # prereq = $(archlabelinchroot)
-$(packagesintmpinchroot): $$(dir $$@)
+$(packagesintmpinchroot):
 	#echo packagesintmpinchroot $@ p=$(notdir $@) arch=$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
 	#echo $(dir $@)
 	p=$$(urpmq --urpmi-root $(chrootdir) --sources $(basename $(notdir $@))); \
