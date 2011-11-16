@@ -1,24 +1,15 @@
 LC_ALL = C
 mirror = /mnt/mirrors/mandriva/official/2011
-v = 1
-ifeq ($(v),0)
-	output = &>/dev/null
-else
-	output =
-endif
+v = 0
 
 archs = i586 x86_64
 srpms = $(shell cat srpms.list)
 
 cachedir = cache
 chrootdir = chroot
-#chrootdirs = $(addprefix $(chrootdir)/,$(archs))
-#archlabelinchroot = $(foreach a,$(archs),$(chrootdir)/$(a))
-archlabelinchroot = $(foreach a,$(archs),$(chrootdir)/tmp/$(a)/)
-tmpinchroot = $(addsuffix /tmp,$(chrootdir))
-packagesintmpinchroot = $(foreach p,$(srpms),$(foreach a,$(archs),$(tmpinchroot)/$(a)/$(p)))
 chroottardir = chroottars
 chroottarsarchdir = $(foreach a,$(archs),$(chroottardir)/$(a))
+packagesintmpinchroottar = $(foreach p,$(srpms),$(foreach d,$(chroottarsarchdir),$(d)/tmp/$(p)))
 chroottars = $(foreach a,$(archs),$(chroottardir)/$(a).tar)
 reportdir = report
 reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
@@ -30,68 +21,32 @@ repos2 = release updates
 repos = $(foreach r1,$repos1,$(foreach r2,$(repos2),$r1/$r2))
 
 percent = %
+archat = $(strip $(foreach a,$(archs),$(findstring $(a),$@)))
+ifeq ($(v),0)
+	output = &>/dev/null
+else
+	output =
+endif
 
 .SECONDEXPANSION:
 
-#all: srpms.list maketars $(reportdirs) $(chrootdir) $(chrootdirs) $(reportpackages)
-all: srpms.list maketars $(chrootdir) $(reportpackages)
+all: srpms.list maketars $(reportpackages)
 
 maketars: $(chroottardir) $(chroottars)
 
-#$(reportpackages): $$(filter $$(percent)$$(strip $$(foreach a,$$(archs),$$(findstring $$(a),$$@))),$$(chrootdirs))
-#$(reportpackages): $$(filter $$(percent)$$(strip $$(foreach a,$$(archs),$$(findstring $$(a),$$@)))/tmp,$$(tmpinchroot))
-
-# $(packagesintmpinchroot):
-#$(reportpackages): $$(chrootdir)/tmp/$$(subst .,,$$(suffix $$@))/$$(basename $$(notdir $$@))
 # prereq = cache $(srpmsincache) report
 $(reportpackages): $(cachedir) $$(cachedir)/$$(basename $$(notdir $$@))
-	#echo p=$@ arch=$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
 
-garbage:
-	#echo
-	#echo $(filter $(percent)$(strip $(foreach a,$(archs),$(findstring $(a),$@)))/tmp,$(tmpinchroot))
-	#echo p=$(chrootdir)/tmp/$(basename $(notdir $@)) arch=$(subst .,,$(suffix $@))
-	#echo p=$(basename $(notdir $@)) arch=$(subst .,,$(suffix $@))
-	#echo p=$@ arch=$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	@# clear chroot
-	@#-sudo rm -rf $(chrootdir)/$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	@#mkdir $(chrootdir)/$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	@#sudo tar -xf $(chroottardir)/$(strip $(foreach a,$(archs),$(findstring $(a),$@))).tar -C $(chrootdir)/$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	#rmdir $(chrootdir)/$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	#touch $@
+# prereq = chroottars/i586/tmp packagesintmpinchroottar
+$(srpmsincache): $(chroottardir)/$(word 1,$(archs)) $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
+	cp $$(ls $(chroottardir)/*/tmp/$(notdir $@)) $@
 
-# prereq = $(packagesintmpinchroot)
-$(srpmsincache): $(chrootdir)/tmp/$(word 1,$(archs))/ $$(chrootdir)/tmp/$$(word 1,$$(archs))/$$(notdir $$@)
-	@echo srpmsincache $@ $(chrootdir)/tmp/*/$(notdir $@)
-	cp $(chrootdir)/tmp/*/$(notdir $@) $@
+$(packagesintmpinchroottar):
+	p=$$(urpmq --urpmi-root $(chroottardir)/$(archat) \
+	--sources $(basename $(notdir $@))); \
+	sudo cp $$p $(chroottardir)/$(archat)/tmp/
 
-$(tmpinchroot):
-	@echo tmpinchroot $@
-
-#$(packagesintmpinchroot): $$(chrootdir)/$$(strip $$(foreach a,$$(archs),$$(findstring $$(a),$$@)))
-# prereq = $(archlabelinchroot)
-$(packagesintmpinchroot):
-	#echo packagesintmpinchroot $@ p=$(notdir $@) arch=$(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	#echo $(dir $@)
-	p=$$(urpmq --urpmi-root $(chrootdir) --sources $(basename $(notdir $@))); \
-	sudo cp $$p $(chrootdir)/tmp/$(strip $(foreach a,$(archs),$(findstring $(a),$@)))/
-
-#$(archlabelinchroot):
-$(archlabelinchroot): $$(chroottardir)/$$(strip $$(foreach a,$$(archs),$$(findstring $$(a),$$@))).tar
-	@#echo archlabelinchroot $@ $(subst /,.,$@) $(strip $(foreach a,$(archs),$(findstring $(a),$@)))
-	@#echo $(chroottardir)/$(notdir $@).tar
-	@#echo $(chroottars)
-	sudo tar -xf $^ -C $(chrootdir)
-	sudo mkdir $@
-
-#$(chrootdirs): $(chroottars)
-#	echo chrootdirs $@ $^
-#	mkdir $@
-
-#nall: srpms.list $(cachedir)
-#	echo $(srpmsincache)
-
-$(cachedir) $(chrootdir) $(reportdir) $(chroottardir):
+$(cachedir) $(reportdir) $(chroottardir):
 	mkdir -p $@
 
 clearall: clearcache clearreports clearchroottars clearchroot
@@ -106,8 +61,8 @@ clearchroottars:
 	-sudo rm -rf $(chroottardir)
 
 clearchroot:
-	-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys
-	-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc
+	-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; :
+	-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; :
 	-sudo rm -rf $(chrootdir)
 
 $(chroottarsarchdir): 
@@ -142,7 +97,4 @@ $(chroottarsarchdir):
 
 $(chroottars): $(chroottarsarchdir)
 	sudo tar -cf $@ -C $(foreach d,$^,$(findstring $(d),$@)) .
-
-#$(srpms): $$(filter $$(percent)$$@,$(srpmsincache))
-#	echo ".src.rpm" $@
 
