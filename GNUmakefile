@@ -1,5 +1,6 @@
 LC_ALL = C
 mirror = /mnt/mirrors/mandriva/official/2011
+user = mandriva
 v = 0
 
 archs = i586 x86_64
@@ -7,12 +8,8 @@ srpms = $(shell cat srpms.list)
 
 cachedir = cache
 chrootdir = chroot
-chroottardir = chroottars
 reportdir = report
 failedlogdir = failedlogs
-chroottarsarchdir = $(foreach a,$(archs),$(chroottardir)/$(a))
-packagesintmpinchroottar = $(foreach p,$(srpms),$(foreach d,$(chroottarsarchdir),$(d)/tmp/$(p)))
-chroottars = $(foreach a,$(archs),$(chroottardir)/$(a).tar)
 reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
 
 srpmsincache = $(addprefix $(cachedir)/,$(srpms))
@@ -24,78 +21,97 @@ repos  = $(foreach r,$(repos3),$(foreach p,SRPMS $(archat)/media,$(p)/$(r)))
 
 percent = %
 archat = $(strip $(foreach a,$(archs),$(findstring $(a),$@)))
+crat = $(chrootdir)/$(archat)
+pkgat = $(basename $(notdir $@))
 ifeq ($(v),0)
 	output = &>/dev/null
+	at = @
+else
+ifeq ($(v),1)
+	output = &>/dev/null
+	at =
 else
 	output =
+	at =
+endif
 endif
 
-.SECONDEXPANSION:
-
-all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(chroottars) $(srpmsincache) $(reportpackages)
+all: srpms.list $(cachedir) $(reportdir) $(chrootdir) $(reportpackages)
 
 $(reportpackages):
-	# $@ p=$(basename $(notdir $@))
-	# umount sys+proc
-	[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys && rm .sysmounted; :
-	[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc && rm .procmounted; :
-	# remove chroot
-	-sudo rm -rf $(chrootdir)
-	# untar chroot
-	mkdir $(chrootdir)
-	sudo tar -xf $(chroottardir)/$(archat).tar -C $(chrootdir)
-	# install buildreqs
-	sudo urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
-	--root $(chrootdir) --urpmi-root $(chrootdir) --buildrequires \
-	$(cachedir)/$(basename $(notdir $@)) $(output)
-	# install file
-	# mount sys+proc
-	[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted
-	[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted
-	# rpmbuild
-	# check if srpm was built
-	# if failed, keep log
-	# write repott
+	@echo
+	$(at)echo report: $@
+	$(at)echo umount
+	$(at)[ -f .sysmounted.$(archat) ] && sudo umount -lf $(crat)/sys && rm .sysmounted.$(archat); :
+	$(at)[ -f .procmounted.$(archat) ] && sudo umount -lf $(crat)/proc && rm .procmounted.$(archat); :
+	$(at) echo rm old chroot
+	$(at)-sudo rm -rf $(crat)
+	$(at)echo add medias
+	$(at)for i in $(repos); do \
+		sudo urpmi.addmedia --urpmi-root $(crat) $$(echo $$i | sed 's!/!_!g') \
+		$(mirror)/$$i; done $(output)
+	$(at)echo base system
+	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto --root $(crat) \
+	--urpmi-root $(crat) shadow-utils rpm tar basesystem-minimal rpm-build \
+	rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
+	$(at)echo check cache
+	$(at)if [ ! -f $(cachedir)/$(pkgat) ] ; then \
+		p=$$(urpmq --urpmi-root $(crat) --sources \
+			$(basename $(pkgat)) 2>.urpmq.error); \
+		if [ -z "$$p" ] ; then \
+			touch $(cachedir)/$(pkgat); \
+			for i in $(archs); do cat .urpmq.error > $@; done; \
+		else \
+			cp $$p $(cachedir)/$(pkgat); \
+		fi; \
+		rm .urpmq.error; \
+	fi
+	$(at)echo proceed if size of file in cache greater than zero
+	$(at)if [ -s $(cachedir)/$(pkgat) ] ; then \
+		echo install buildreqs; \
+		sudo urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
+			--root $(crat) --urpmi-root $(crat) --buildrequires \
+			$(cachedir)/$(pkgat) $(output); \
+		echo mount sys+proc; \
+		[ ! -f .procmounted.$(archat) ] && sudo mount -o bind /proc $(crat)/proc \
+			&& touch .procmounted.$(archat); \
+		[ ! -f .sysmounted.$(archat) ] && sudo mount -o bind /sys $(crat)/sys \
+			&& touch .sysmounted.$(archat); \
+		echo create user $(user); \
+		sudo chroot $(crat) adduser $(user); \
+		echo install pkg; \
+		sudo cp $(cachedir)/$(pkgat) $(crat)/tmp; \
+		sudo chroot $(crat) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(pkgat) $(output)'; \
+		echo build pkg; \
+		sudo chroot $(crat) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
+			--target=$(archat)' | tee .log $(output) 2>&1; \
+		echo check for errors; \
+		if [ ! -f $(crat)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
+			cp .log $(failedlogdir)/$(notdir $@).log; \
+			echo "no srpm" > $@; \
+		else \
+			echo ok > $@; \
+		fi; \
+		rm .log; \
+	fi
+	$(at)touch $@
 
-# prereq = chroottars/i586/tmp packagesintmpinchroottar
-#$(srpmsincache): $(chroottardir)/$(word 1,$(archs)) $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
-$(srpmsincache): $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
-	cp $$(ls $(chroottardir)/*/tmp/$(notdir $@)) $@
 
-# get path to src.rpm and copy it into chroottars/i586/tmp
-# if path is empty (src.rpm does not exists) then create files
-# report/name.of.src.rpm.<arch> containing error message
-$(packagesintmpinchroottar):
-	p=$$(urpmq --urpmi-root $(chroottardir)/$(archat) \
-	--sources $(basename $(notdir $@)) 2>.urpmq.error); \
-	if [ -z "$$p" ] ; \
-	then sudo touch $(chroottardir)/$(archat)/tmp/$(notdir $@); \
-	for i in $(archs); do cat .urpmq.error > $(reportdir)/$(notdir $@).$$i; done; \
-	else sudo cp $$p $(chroottardir)/$(archat)/tmp/; fi
-	-rm .urpmq.error
 
-$(cachedir) $(reportdir) $(chroottardir):
-	mkdir -p $@
+clearall: delete.cachedir delete.reportdir delete.chrootdir delete.failedlogdir 
 
-clearall: delete.cachedir delete.reportdir delete.chroottardir delete.chrootdir delete.failedlogdir 
+$(cachedir) $(reportdir) $(chrootdir):
+	$(at)mkdir -p $@
 
 delete.%:
-	-sudo rm -rf $($*)
+	$(at)-sudo rm -rf $($*)
 
 delete.chrootdir:
-	-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; :
-	-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; :
-	-rm .sysmounted .procmounted
-	-sudo rm -rf $(chrootdir)
-
-$(chroottarsarchdir): 
-	for i in $(repos); do \
-	sudo urpmi.addmedia --urpmi-root $@ $$(echo $$i | sed 's!/!_!g') \
-	$(mirror)/$$i; done $(output)
-	sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto --root $@ \
-	--urpmi-root $@ shadow-utils rpm tar basesystem-minimal rpm-build \
-	rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
-
-$(chroottars): $(chroottarsarchdir)
-	sudo tar -cf $@ -C $(foreach d,$^,$(findstring $(d),$@)) .
+	$(at)-for i in $(archs); do \
+		[ -f .sysmounted.$$i ] && sudo umount -lf $(chrootdir)/$$i/sys; \
+		[ -f .procmounted.$$i ] && sudo umount -lf $(chrootdir)/$$i/proc; \
+		rm .sysmounted.$$i .procmounted.$$i; \
+		sudo rm -rf $(chrootdir)/$$i; \
+	done
+	$(at)-rmdir $(chrootdir)
 
