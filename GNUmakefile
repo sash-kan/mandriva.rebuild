@@ -10,6 +10,8 @@ cachedir = cache
 chrootdir = chroot
 reportdir = report
 failedlogdir = failedlogs
+tardir = chroottars
+tars = $(addprefix $(tardir)/,$(archs))
 reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
 
 srpmsincache = $(addprefix $(cachedir)/,$(srpms))
@@ -36,7 +38,10 @@ else
 endif
 endif
 
-all: srpms.list $(cachedir) $(reportdir) $(chrootdir) $(reportpackages)
+all: srpms.list $(cachedir) $(reportdir) $(chrootdir) $(tars) $(reportpackages)
+
+$(tars):
+	echo $@
 
 $(reportpackages):
 	@echo
