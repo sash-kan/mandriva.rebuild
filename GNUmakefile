@@ -81,7 +81,6 @@ $(chroottarsarchdir):
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
 		$(withoutatu) shadow-utils rpm tar basesystem-minimal rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en db51-utils $(output)
-	#$(at)sudo rpm --rebuilddb --dbpath /var/lib/rpm --root $$PWD/$@ $(output)
 	# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
@@ -109,23 +108,16 @@ $(reportpackages):
 	$(at)[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted $(output)
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
-	# repair
-	#$(at)sudo rpm --rebuilddb --dbpath /var/lib/rpm --root $$PWD/$(chrootdir) $(output)
 	# install buildreqs
-	#$(at)sudo urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
-	#	$(withoutcr) $(withoutcru) --buildrequires \
-	#	$(cachedir)/$(pkgat) $(output)
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
 		--buildrequires \
 		/tmp/$(pkgat) $(output)
 	# create user
 	$(at)sudo chroot $(chrootdir) adduser $(user) $(output)
-	#$(at)sudo chroot $(chrootdir) adduser -u $$(id -u) -g $$(id -g) $(user) $(output)
 	# install file
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(pkgat)' $(output)
-	#$(at)HOME=$$PWD/$(chrootdir)/home/$(user) urpmi --install-src $(pkgat) $(output)
 	# rpmbuild
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
 		--target=$(archat)' | tee .log $(output) 2>&1
@@ -145,7 +137,6 @@ $(reportpackages):
 	$(at)-rm .sysmounted .procmounted .mirmounted $(output)
 
 # prereq = chroottars/i586/tmp packagesintmpinchroottar
-#$(srpmsincache): $(chroottardir)/$(word 1,$(archs)) $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
 $(srpmsincache): $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
 	$(at)cp $$(ls $(chroottardir)/*/tmp/$(notdir $@)) $@ $(output)
 
