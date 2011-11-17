@@ -73,6 +73,7 @@ $(chroottarsarchdir):
 	sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto --root $@ \
 	--urpmi-root $@ shadow-utils rpm tar basesystem-minimal rpm-build \
 	rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
+	sudo chroot $@ 'cd /var/lib/rpm && db51_recover -dv' $(output)
 
 $(chroottars): $(chroottarsarchdir)
 	sudo tar -cf $@ -C $(foreach d,$^,$(findstring $(d),$@)) .
