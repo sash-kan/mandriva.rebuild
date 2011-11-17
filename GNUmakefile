@@ -60,7 +60,7 @@ $(reportpackages):
 			$(basename $(pkgat)) 2>.urpmq.error); \
 		if [ -z "$$p" ] ; then \
 			touch $(cachedir)/$(pkgat); \
-			for i in $(archs); do cat .urpmq.error > $@; done; \
+			for i in $(archs); do cat .urpmq.error > $(basename $@).$$i; done; \
 		else \
 			cp $$p $(cachedir)/$(pkgat); \
 		fi; \
