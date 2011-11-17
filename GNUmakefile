@@ -8,10 +8,11 @@ srpms = $(shell cat srpms.list)
 cachedir = cache
 chrootdir = chroot
 chroottardir = chroottars
+reportdir = report
+failedlogdir = failedlogs
 chroottarsarchdir = $(foreach a,$(archs),$(chroottardir)/$(a))
 packagesintmpinchroottar = $(foreach p,$(srpms),$(foreach d,$(chroottarsarchdir),$(d)/tmp/$(p)))
 chroottars = $(foreach a,$(archs),$(chroottardir)/$(a).tar)
-reportdir = report
 reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
 
 srpmsincache = $(addprefix $(cachedir)/,$(srpms))
@@ -34,7 +35,27 @@ endif
 all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(chroottars) $(srpmsincache) $(reportpackages)
 
 $(reportpackages):
-	#echo $@
+	# $@ p=$(basename $(notdir $@))
+	# umount sys+proc
+	[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys && rm .sysmounted; :
+	[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc && rm .procmounted; :
+	# remove chroot
+	-sudo rm -rf $(chrootdir)
+	# untar chroot
+	mkdir $(chrootdir)
+	sudo tar -xf $(chroottardir)/$(archat).tar -C $(chrootdir)
+	# install buildreqs
+	sudo urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
+	--root $(chrootdir) --urpmi-root $(chrootdir) --buildrequires \
+	$(cachedir)/$(basename $(notdir $@)) $(output)
+	# install file
+	# mount sys+proc
+	[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted
+	[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted
+	# rpmbuild
+	# check if srpm was built
+	# if failed, keep log
+	# write repott
 
 # prereq = chroottars/i586/tmp packagesintmpinchroottar
 #$(srpmsincache): $(chroottardir)/$(word 1,$(archs)) $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
@@ -56,7 +77,7 @@ $(packagesintmpinchroottar):
 $(cachedir) $(reportdir) $(chroottardir):
 	mkdir -p $@
 
-clearall: delete.cachedir delete.reportdir delete.chroottardir delete.chrootdir
+clearall: delete.cachedir delete.reportdir delete.chroottardir delete.chrootdir delete.failedlogdir 
 
 delete.%:
 	-sudo rm -rf $($*)
@@ -64,6 +85,7 @@ delete.%:
 delete.chrootdir:
 	-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; :
 	-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; :
+	-rm .sysmounted .procmounted
 	-sudo rm -rf $(chrootdir)
 
 $(chroottarsarchdir): 
