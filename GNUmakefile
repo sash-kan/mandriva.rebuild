@@ -138,7 +138,12 @@ $(reportpackages):
 
 # prereq = chroottars/i586/tmp packagesintmpinchroottar
 $(srpmsincache): $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
-	$(at)cp $$(ls $(chroottardir)/*/tmp/$(notdir $@)) $@ $(output)
+	#echo $@=cache/abc.1.2.3.src.rpm $^=chroottars/i586/tmp/abc.1.2.3.src.rpm
+	$(at)if [ -f "$^" ] ; then \
+		cp $^ $@ $(output); \
+	else \
+		for a in $(archs); do echo "not in repo" > $(reportdir)/$(notdir $@).$$a; done; \
+	fi $(output)
 
 # get path to src.rpm and copy it into chroottars/i586/tmp
 # if path is empty (src.rpm does not exists) then create files
