@@ -1,0 +1,12 @@
+--- SPECS/webmin.spec.orig	2011-11-18 18:00:28.625767861 +0000
++++ SPECS/webmin.spec	2011-11-18 18:03:52.348220980 +0000
+@@ -15,8 +15,7 @@
+ %define release %mkrel 2
+ %else
+ # Old distros
+-%define subrel 1
+-%define release %mkrel 1
++%define release %mkrel 2
+ %endif
+ 
+ Summary:	An SSL web-based administration interface for Unix systems
