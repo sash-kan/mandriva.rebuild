@@ -1,5 +1,4 @@
-LC_ALL = C
-LANG = C
+export LC_ALL = C
 mirror = /mnt/mirrors/mandriva/official/2011
 user = mandriva
 withouturpmiroot = 1
