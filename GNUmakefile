@@ -142,7 +142,7 @@ $(reportpackages):
 $(srpmsincache):
 	$(at)p=$$(find $(mirror) -name $(notdir $@) 2>.find.error | head -n 1); \
 		if [ -z "$$p" ] ; then \
-			for i in $(arch); do (echo -n "not in repo: "; cat .find.error) \
+			for i in $(arch); do (echo "not in repo: "; cat .find.error) \
 				> $(reportdir)/$(notdir $@).$$i; \
 			done; \
 		else ln -s $$p $@; fi $(output)
