@@ -120,6 +120,11 @@ $(reportpackages):
 	# install file
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(pkgat)' $(output)
+	# apply patch if exists
+	$(at)if [ -f "patches/$(pkgat).patch" ] ; then \
+		sudo cp "patches/$(pkgat).patch" $(chrootdir)/tmp; \
+		sudo chroot $(chrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(pkgat).patch'; \
+		else :; fi $(output)
 	# rpmbuild
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
 		--target=$(archat)' | tee .log $(output) 2>&1
