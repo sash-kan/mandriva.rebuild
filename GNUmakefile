@@ -130,7 +130,7 @@ $(reportpackages):
 		--target=$(archat)' | tee .log $(output) 2>&1
 	# check if srpm was built. if failed, keep log
 	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
-		cp .log $(failedlogdir)/$(notdir $@).log; \
+		cp .log $(failedlogdir)/$(notdir $@).$$(date +"%Y%m%d.%H%M%S.%N").log; \
 		echo "no srpm" > $@; \
 	else \
 		echo ok > $@; \
