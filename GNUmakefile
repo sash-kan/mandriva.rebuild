@@ -6,7 +6,7 @@ withouturpmiroot = 1
 withouturpmirootu = 0
 v = 0
 
-archs = i586 x86_64
+arch := $(shell cat /etc/product.id | grep -Eo 'arch=[^,$$]+' | sed 's/arch=//')
 srpms = $(shell cat srpms.list)
 
 cachedir = cache
@@ -14,9 +14,9 @@ chrootdir = chroot
 chroottardir = chroottars
 reportdir = report
 failedlogdir = failedlogs
-chroottarsarchdir = $(foreach a,$(archs),$(chroottardir)/$(a))
-chroottars = $(foreach a,$(archs),$(chroottardir)/$(a).tar)
-reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
+chroottarsarchdir = $(foreach a,$(arch),$(chroottardir)/$(a))
+chroottars = $(foreach a,$(arch),$(chroottardir)/$(a).tar)
+reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(arch),$(p).$(a)))
 
 srpmsincache = $(addprefix $(cachedir)/,$(srpms))
 
@@ -29,7 +29,7 @@ repos.add.i586 =
 repos.add.x86_64 = i586/media/main/release i586/media/main/updates
 
 percent = %
-archat = $(strip $(foreach a,$(archs),$(findstring $(a),$@)))
+archat = $(strip $(foreach a,$(arch),$(findstring $(a),$@)))
 pkgat = $(basename $(notdir $@))
 ifeq ($(v),0)
 	output = &>/dev/null
@@ -142,7 +142,7 @@ $(reportpackages):
 $(srpmsincache):
 	$(at)p=$$(find $(mirror) -name $(notdir $@) 2>.find.error | head -n 1); \
 		if [ -z "$$p" ] ; then \
-			for i in $(archs); do (echo -n "not in repo: "; cat .find.error) \
+			for i in $(arch); do (echo -n "not in repo: "; cat .find.error) \
 				> $(reportdir)/$(notdir $@).$$i; \
 			done; \
 		else ln -s $$p $@; fi $(output)
@@ -164,7 +164,7 @@ delete.chrootdir:
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 
 delete.chroottardir:
-	$(at)-for a in $(archs); do \
+	$(at)-for a in $(arch); do \
 		[ -f .procmounted.$$a ] && sudo umount -lf $(chroottardir)/$$a/proc; \
 		[ -f .sysmounted.$$a ] && sudo umount -lf $(chroottardir)/$$a/sys; \
 		rm .procmounted.$$a .sysmounted.$$a; \
