@@ -1,0 +1,11 @@
+--- SPECS/vpnpptp-allde.spec.orig	2011-11-18 21:46:52.635944363 +0000
++++ SPECS/vpnpptp-allde.spec	2011-11-18 21:47:17.505633444 +0000
+@@ -35,7 +35,7 @@ rm -f %{_datadir}/applications/vpnpptp.d
+ 
+ %build
+ %ifarch x86_64
+-./mandriva.compile.sh x86_64 lib64
++./mandriva.compile.sh x86_64 lib
+ %else
+ ./mandriva.compile.sh i386 lib
+ %endif
