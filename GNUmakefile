@@ -25,6 +25,9 @@ repos2 = release updates
 repos3 = $(foreach r1,$(repos1),$(foreach r2,$(repos2),$(r1)/$(r2)))
 repos  = $(foreach r,$(repos3),$(foreach p,SRPMS $(archat)/media,$(p)/$(r)))
 
+repos.add.i586 =
+repos.add.x86_64 = i586/media/main/release i586/media/main/updates
+
 percent = %
 archat = $(strip $(foreach a,$(archs),$(findstring $(a),$@)))
 pkgat = $(basename $(notdir $@))
@@ -67,19 +70,19 @@ $(chroottarsarchdir):
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
 	$(at)-rm .procmounted.$(archat) .sysmounted.$(archat) $(output)
-	$(at)for i in $(repos); do \
+	$(at)for i in $(repos) $(repos.add.$(archat)); do \
 		sudo urpmi.addmedia $(withoutatu) $$(echo $$i | sed 's!/!_!g') \
 			$(mirror)/$$i; \
 	done $(output)
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
-		$(withoutatu) filesystem $(output)
+		$(withoutatu) basesystem-minimal $(output)
 	# mount sys+proc
 	$(at)[ ! -f .procmounted.$(archat) ] && sudo mount -o bind /proc $@/proc && \
 		touch .procmounted.$(archat) $(output)
 	$(at)[ ! -f .sysmounted.$(archat) ] && sudo mount -o bind /sys $@/sys && \
 		touch .sysmounted.$(archat) $(output)
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
-		$(withoutatu) shadow-utils rpm tar basesystem-minimal rpm-build \
+		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en db51-utils $(output)
 	# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
