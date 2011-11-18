@@ -15,7 +15,6 @@ chroottardir = chroottars
 reportdir = report
 failedlogdir = failedlogs
 chroottarsarchdir = $(foreach a,$(archs),$(chroottardir)/$(a))
-packagesintmpinchroottar = $(foreach p,$(srpms),$(foreach d,$(chroottarsarchdir),$(d)/tmp/$(p)))
 chroottars = $(foreach a,$(archs),$(chroottardir)/$(a).tar)
 reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(archs),$(p).$(a)))
 
@@ -140,26 +139,14 @@ $(reportpackages):
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
 	$(at)-rm .sysmounted .procmounted .mirmounted $(output)
 
-# prereq = chroottars/i586/tmp packagesintmpinchroottar
-$(srpmsincache): $$(chroottardir)/$$(word 1,$$(archs))/tmp/$$(notdir $$@)
-	#echo $@=cache/abc.1.2.3.src.rpm $^=chroottars/i586/tmp/abc.1.2.3.src.rpm
-	$(at)if [ -f "$^" ] ; then \
-		cp $^ $@ $(output); \
-	else \
-		for a in $(archs); do echo "not in repo" > $(reportdir)/$(notdir $@).$$a; done; \
-	fi $(output)
-
-# get path to src.rpm and copy it into chroottars/i586/tmp
-# if path is empty (src.rpm does not exists) then create files
-# report/name.of.src.rpm.<arch> containing error message
-$(packagesintmpinchroottar):
-	$(at)p=$$(urpmq --urpmi-root $(chroottardir)/$(archat) \
-		--sources $(pkgat) 2>.urpmq.error); \
+$(srpmsincache):
+	$(at)p=$$(find $(mirror) -name $(notdir $@) 2>.find.error | head -n 1); \
 		if [ -z "$$p" ] ; then \
-			sudo touch $(chroottardir)/$(archat)/tmp/$(notdir $@); \
-			for i in $(archs); do cat .urpmq.error > $(reportdir)/$(notdir $@).$$i; done; \
-		else sudo cp $$p $(chroottardir)/$(archat)/tmp/; fi $(output)
-	$(at)-rm .urpmq.error $(output)
+			for i in $(archs); do (echo -n "not in repo: "; cat .find.error) \
+				> $(reportdir)/$(notdir $@).$$i; \
+			done; \
+		else ln -s $$p $@; fi $(output)
+	$(at)-rm .find.error $(output)
 
 $(cachedir) $(reportdir) $(chroottardir) $(failedlogdir):
 	$(at)mkdir -p $@ $(output)
