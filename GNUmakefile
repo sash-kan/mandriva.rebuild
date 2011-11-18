@@ -83,7 +83,7 @@ $(chroottarsarchdir):
 		touch .sysmounted.$(archat) $(output)
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
 		$(withoutatu) shadow-utils rpm tar rpm-build \
-		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en db51-utils $(output)
+		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
 	# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
