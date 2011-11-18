@@ -4,7 +4,7 @@ mirror = /mnt/mirrors/mandriva/official/2011
 user = mandriva
 withouturpmiroot = 1
 withouturpmirootu = 0
-v = 0
+v = 2
 
 arch := $(shell cat /etc/product.id | grep -Eo 'arch=[^,$$]+' | sed 's/arch=//')
 srpms = $(shell cat srpms.list)
