@@ -1,0 +1,11 @@
+--- SPECS/vim.spec.orig	2011-11-19 15:48:28.148533539 +0000
++++ SPECS/vim.spec	2011-11-19 15:49:56.091304326 +0000
+@@ -64,7 +64,7 @@ Patch101:	vim-7.3-fstabsyntax.patch
+ # See https://qa.mandriva.com/show_bug.cgi?id=44925#c17
+ Patch1000:	nofork.patch
+ 
+-BuildRequires:	%{_lib}lua-devel
++BuildRequires:	lua-devel
+ BuildRequires:	python-devel
+ BuildRequires:	perl-devel
+ BuildRequires:	termcap-devel
