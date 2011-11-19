@@ -68,7 +68,7 @@ $(chroottarsarchdir):
 	# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
-	$(at)-rm .procmounted.$(archat) .sysmounted.$(archat) $(output)
+	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
 	$(at)for i in $(repos) $(repos.add.$(archat)); do \
 		sudo urpmi.addmedia $(withoutatu) $$(echo $$i | sed 's!/!_!g') \
 			$(mirror)/$$i; \
@@ -86,7 +86,7 @@ $(chroottarsarchdir):
 	# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
-	$(at)-rm .procmounted.$(archat) .sysmounted.$(archat) $(output)
+	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
 
 # make tarball with initial chroot
 $(chroottars): $(chroottarsarchdir)
@@ -99,7 +99,7 @@ $(reportpackages):
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
-	$(at)-rm .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 	# remove chroot
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 	# untar chroot
@@ -138,13 +138,13 @@ $(reportpackages):
 	else \
 		echo ok > $@; \
 	fi $(output)
-	$(at)rm .log $(output)
+	$(at)rm -f .log $(output)
 	$(at)touch $@ $(output)
 	# umount sys+proc
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
-	$(at)-rm .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 
 $(srpmsincache):
 	$(at)p=$$(find $(mirror) -name $(notdir $@) 2>.find.error | head -n 1); \
@@ -153,7 +153,7 @@ $(srpmsincache):
 				> $(reportdir)/$(notdir $@).$$i; \
 			done; \
 		else ln -s $$p $@; fi $(output)
-	$(at)-rm .find.error $(output)
+	$(at)-rm -f .find.error $(output)
 
 $(cachedir) $(reportdir) $(chroottardir) $(failedlogdir):
 	$(at)mkdir -p $@ $(output)
@@ -167,13 +167,13 @@ delete.chrootdir:
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
-	$(at)-rm .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 
 delete.chroottardir:
 	$(at)-for a in $(arch); do \
 		[ -f .procmounted.$$a ] && sudo umount -lf $(chroottardir)/$$a/proc; \
 		[ -f .sysmounted.$$a ] && sudo umount -lf $(chroottardir)/$$a/sys; \
-		rm .procmounted.$$a .sysmounted.$$a; \
+		rm -f .procmounted.$$a .sysmounted.$$a; \
 		sudo rm -rf $(chroottardir); \
 	done $(output)
