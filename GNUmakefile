@@ -65,7 +65,7 @@ all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(failedlogdir) $(chroo
 
 # build initial chroot
 $(chroottarsarchdir): 
-	# umount sys+proc
+	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
 	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
@@ -75,7 +75,7 @@ $(chroottarsarchdir):
 	done $(output)
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
 		$(withoutatu) basesystem-minimal $(output)
-	# mount sys+proc
+	$(at)# mount sys+proc
 	$(at)[ ! -f .procmounted.$(archat) ] && sudo mount -o bind /proc $@/proc && \
 		touch .procmounted.$(archat) $(output)
 	$(at)[ ! -f .sysmounted.$(archat) ] && sudo mount -o bind /sys $@/sys && \
@@ -83,7 +83,7 @@ $(chroottarsarchdir):
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
-	# umount sys+proc
+	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
 	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
@@ -94,33 +94,33 @@ $(chroottars): $(chroottarsarchdir)
 
 # untar new chroot, build next package
 $(reportpackages):
-	# $@ p=$(pkgat)
-	# umount sys+proc
+	$(at)# $@ p=$(pkgat)
+	$(at)# umount sys+proc
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
 	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
-	# remove chroot
+	$(at)# remove chroot
 	$(at)-sudo rm -rf $(chrootdir) $(output)
-	# untar chroot
+	$(at)# untar chroot
 	$(at)mkdir $(chrootdir) $(output)
 	$(at)sudo tar -xf $(chroottardir)/$(archat).tar -C $(chrootdir) $(output)
 	$(at)sudo mkdir -p $(chrootdir)$(mirror)
-	# mount sys+proc
+	$(at)# mount sys+proc
 	$(at)[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted $(output)
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
-	# install buildreqs
+	$(at)# install buildreqs
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
 		--buildrequires \
 		/tmp/$(pkgat) $(output)
-	# create user
+	$(at)# create user
 	$(at)sudo chroot $(chrootdir) adduser $(user) $(output)
-	# install file
+	$(at)# install file
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(pkgat)' $(output)
-	# apply patch if exists
+	$(at)# apply patch if exists
 	$(at)if [ -f "patches/$(pkgat).patch" ] ; then \
 		sudo cp "patches/$(pkgat).patch" $(chrootdir)/tmp; \
 		sudo chroot $(chrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(pkgat).patch'; \
@@ -128,10 +128,10 @@ $(reportpackages):
 		sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm \
 			--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//'); \
 		else :; fi $(output)
-	# rpmbuild
+	$(at)# rpmbuild
 	$(at)-sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
 		--target=$(archat)' | tee .log $(output) 2>&1
-	# check if srpm was built. if failed, keep log
+	$(at)# check if srpm was built. if failed, keep log
 	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
 		cp .log $(failedlogdir)/$(notdir $@).$$(date +"%Y%m%d.%H%M%S.%N").log; \
 		echo "no srpm" > $@; \
@@ -140,7 +140,7 @@ $(reportpackages):
 	fi $(output)
 	$(at)rm -f .log $(output)
 	$(at)touch $@ $(output)
-	# umount sys+proc
+	$(at)# umount sys+proc
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
