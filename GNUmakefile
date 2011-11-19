@@ -147,7 +147,7 @@ $(reportpackages):
 	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 
 $(srpmsincache):
-	$(at)p=$$(find $(mirror) -name $(notdir $@) 2>.find.error | head -n 1); \
+	$(at)p=$$(find $(mirror)/SRPMS -name $(notdir $@) 2>.find.error | head -n 1); \
 		if [ -z "$$p" ] ; then \
 			for i in $(arch); do (echo "not in repo: "; cat .find.error) \
 				> $(reportdir)/$(notdir $@).$$i; \
