@@ -84,9 +84,9 @@ $(chroottarsarchdir):
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
 	$(at)# create devices
-	$(at)sudo chroot $(chrootdir) mknod -m 666 /dev/tty c 5 0
-	$(at)sudo chroot $(chrootdir) mknod -m 666 /dev/random c 1 8
-	$(at)sudo chroot $(chrootdir) mknod -m 444 /dev/urandom c 1 9
+	$(at)sudo chroot $@ mknod -m 666 /dev/tty c 5 0
+	$(at)sudo chroot $@ mknod -m 666 /dev/random c 1 8
+	$(at)sudo chroot $@ mknod -m 444 /dev/urandom c 1 9
 	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
