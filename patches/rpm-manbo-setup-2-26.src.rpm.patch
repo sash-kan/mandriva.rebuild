@@ -1,11 +1,11 @@
---- SPECS/rpm-manbo-setup.spec.orig	2011-11-19 13:56:07.643612616 +0000
-+++ SPECS/rpm-manbo-setup.spec	2011-11-19 13:58:45.631613751 +0000
+--- SPECS/rpm-manbo-setup.spec.orig	2011-11-19 14:50:35.336711152 +0000
++++ SPECS/rpm-manbo-setup.spec	2011-11-19 14:51:03.848975434 +0000
 @@ -24,6 +24,8 @@ Requires:	%name = %version-%release
  %description	build
  The Manbo rpm configuration and scripts dedicated to build rpms.
  
 +%prep
-+
++%setup -cT
  %install
  install -d %buildroot/usr/lib/rpm/manbo
  install %SOURCE5 %SOURCE6 %SOURCE7 %SOURCE8 %SOURCE9 %buildroot/usr/lib/rpm/manbo
