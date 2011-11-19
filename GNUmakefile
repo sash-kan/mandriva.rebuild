@@ -66,8 +66,8 @@ all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(failedlogdir) $(chroo
 # build initial chroot
 $(chroottarsarchdir): 
 	$(at)# umount sys+proc
-	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
-	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
+	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
+	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
 	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
 	$(at)for i in $(repos) $(repos.add.$(archat)); do \
 		sudo urpmi.addmedia $(withoutatu) $$(echo $$i | sed 's!/!_!g') \
@@ -84,8 +84,8 @@ $(chroottarsarchdir):
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
 	$(at)# umount sys+proc
-	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc $(output)
-	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys $(output)
+	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
+	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
 	$(at)-rm -f .procmounted.$(archat) .sysmounted.$(archat) $(output)
 
 # make tarball with initial chroot
@@ -96,9 +96,9 @@ $(chroottars): $(chroottarsarchdir)
 $(reportpackages):
 	$(at)# $@ p=$(pkgat)
 	$(at)# umount sys+proc
-	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
-	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
-	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
+	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
+	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
 	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 	$(at)# remove chroot
 	$(at)-sudo rm -rf $(chrootdir) $(output)
@@ -141,9 +141,9 @@ $(reportpackages):
 	$(at)rm -f .log $(output)
 	$(at)touch $@ $(output)
 	$(at)# umount sys+proc
-	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
-	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
-	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
+	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
+	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
 	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 
 $(srpmsincache):
@@ -164,9 +164,9 @@ delete.%:
 	$(at)-sudo rm -rf $($*) $(output)
 
 delete.chrootdir:
-	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys $(output)
-	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc $(output)
-	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror) $(output)
+	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
+	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
 	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 
