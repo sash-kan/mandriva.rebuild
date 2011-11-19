@@ -124,6 +124,9 @@ $(reportpackages):
 	$(at)if [ -f "patches/$(pkgat).patch" ] ; then \
 		sudo cp "patches/$(pkgat).patch" $(chrootdir)/tmp; \
 		sudo chroot $(chrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(pkgat).patch'; \
+		# if the patch fixes builddeps, then we should try to install them after applying \
+		sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm \
+			--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//'); \
 		else :; fi $(output)
 	# rpmbuild
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
