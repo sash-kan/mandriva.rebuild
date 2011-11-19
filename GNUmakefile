@@ -112,7 +112,7 @@ $(reportpackages):
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
 	$(at)# install buildreqs
-	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
+	$(at)sudo cp -P $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
 		--buildrequires \
 		/tmp/$(pkgat) $(output)
