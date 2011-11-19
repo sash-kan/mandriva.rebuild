@@ -1,0 +1,21 @@
+Index: SPECS/tar.spec
+===================================================================
+--- SPECS/tar.spec	(revision 644080)
++++ SPECS/tar.spec	(working copy)
+@@ -9,7 +9,7 @@
+ Source1:	%{SOURCE0}.sig
+ Source2:	%{name}-help2man.bz2
+ BuildRequires:	bison xz
+-BuildRequires:	rsh
++Suggests:	/usr/bin/rsh
+ Patch0:		tar-1.25-fix-buffer-overflow.patch
+ Patch1:		tar-1.24-lzma.patch
+  
+@@ -49,6 +49,7 @@
+ sed -i 's/.*sigpipe.at.*//' tests/testsuite.at
+ 
+ %build
++RSH=/usr/bin/rsh \
+ %configure2_5x \
+ 	--enable-backup-scripts \
+ 	--bindir=/bin \
