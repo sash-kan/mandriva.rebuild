@@ -130,7 +130,7 @@ $(reportpackages):
 		else :; fi $(output)
 	$(at)# rpmbuild
 	$(at)-sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
-		--target=$(archat)' | tee .log $(output) 2>&1
+		--target=$(archat)'  2>&1 | tee .log $(output)
 	$(at)# check if srpm was built. if failed, keep log
 	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
 		cp .log $(failedlogdir)/$(notdir $@).$$(date +"%Y%m%d.%H%M%S.%N").log; \
