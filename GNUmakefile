@@ -115,7 +115,7 @@ $(reportpackages):
 	$(at)sudo cp -P $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
 		--buildrequires \
-		/tmp/$(pkgat) $(output)
+		/tmp/$(pkgat) 2>&1 | tee .log $(output)
 	$(at)# create user
 	$(at)sudo chroot $(chrootdir) adduser $(user) $(output)
 	$(at)# install file
@@ -126,11 +126,12 @@ $(reportpackages):
 		sudo chroot $(chrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(pkgat).patch'; \
 		# if the patch fixes builddeps, then we should try to install them after applying \
 		sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm \
-			--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//'); \
+			--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//') \
+			2>&1 | tee -a .log; \
 		else :; fi $(output)
 	$(at)# rpmbuild
 	$(at)-sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
-		--target=$(archat)'  2>&1 | tee .log $(output)
+		--target=$(archat)'  2>&1 | tee -a .log $(output)
 	$(at)# check if srpm was built. if failed, keep log
 	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
 		cp .log $(failedlogdir)/$(notdir $@).$$(date +"%Y%m%d.%H%M%S.%N").log; \
