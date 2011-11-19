@@ -111,14 +111,13 @@ $(reportpackages):
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
 	$(at)# install buildreqs
-	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp
+	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
 		--buildrequires \
 		/tmp/$(pkgat) $(output)
 	$(at)# create user
 	$(at)sudo chroot $(chrootdir) adduser $(user) $(output)
 	$(at)# install file
-	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(pkgat)' $(output)
 	$(at)# apply patch if exists
 	$(at)if [ -f "patches/$(pkgat).patch" ] ; then \
