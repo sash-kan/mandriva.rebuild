@@ -83,6 +83,7 @@ $(chroottarsarchdir):
 	$(at)sudo urpmi  --no-suggests --excludedocs --no-verify-rpm --auto $(withoutat) \
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
+	$(at)sudo chroot $@ sh -c 'cd /var/lib/rpm && db51_recover && rpm --rebuilddb' $(output)
 	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
@@ -90,7 +91,7 @@ $(chroottarsarchdir):
 
 # make tarball with initial chroot
 $(chroottars): $(chroottarsarchdir)
-	$(at)sudo tar -cf $@ -C $(foreach d,$^,$(findstring $(d),$@)) . $(output)
+	$(at)-sudo tar --ignore-failed-read -cf $@ -C $(foreach d,$^,$(findstring $(d),$@)) . $(output)
 
 # untar new chroot, build next package
 $(reportpackages):
@@ -110,10 +111,6 @@ $(reportpackages):
 	$(at)[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted $(output)
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
-	$(at)# create devices
-	$(at)-sudo chroot $@ mknod -m 666 /dev/tty c 5 0 $(output)
-	$(at)-sudo chroot $@ mknod -m 666 /dev/random c 1 8 $(output)
-	$(at)-sudo chroot $@ mknod -m 444 /dev/urandom c 1 9 $(output)
 	$(at)# install buildreqs
 	$(at)sudo cp $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
 	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
