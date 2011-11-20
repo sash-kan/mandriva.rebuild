@@ -1,0 +1,11 @@
+--- SPECS/virtualbox.spec.orig	2011-11-20 18:56:21.000000000 +0000
++++ SPECS/virtualbox.spec	2011-11-20 18:56:47.000000000 +0000
+@@ -9,7 +9,7 @@
+ %define vboxdatadir	%{_datadir}/%{name}
+ 
+ %define build_additions 1
+-%define build_doc 1
++%define build_doc 0
+ 
+ %ifarch %{ix86}
+ %define vbox_platform linux.x86
