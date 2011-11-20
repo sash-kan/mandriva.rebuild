@@ -1,0 +1,11 @@
+--- SPECS/usb_modeswitch.spec.orig	2011-11-20 20:55:52.000000000 +0000
++++ SPECS/usb_modeswitch.spec	2011-11-20 20:56:24.000000000 +0000
+@@ -1,7 +1,7 @@
+ Name:		usb_modeswitch
+ Summary:	Activating Switchable USB Devices on Linux
+ Version:	1.1.9
+-Release:	1
++Release:	2
+ License:	GPLv2+
+ %define fname	usb-modeswitch
+ %define	fver	%{version}
