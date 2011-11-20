@@ -1,0 +1,10 @@
+--- SPECS/timezone.spec.orig	2011-11-20 21:21:33.000000000 +0000
++++ SPECS/timezone.spec	2011-11-20 21:22:02.000000000 +0000
+@@ -1,6 +1,6 @@
+ %define name	timezone
+ %define epoch	6
+-%define version	2011m
++%define version	2011k
+ %define subrel 1
+ %define release	%mkrel 1
+ 
