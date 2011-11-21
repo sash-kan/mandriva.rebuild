@@ -30,6 +30,7 @@ repos.add.x86_64 = i586/media/main/release i586/media/main/updates
 percent = %
 archat = $(strip $(foreach a,$(arch),$(findstring $(a),$@)))
 pkgat = $(basename $(notdir $@))
+pkgat_mdv2000 = $(shell echo "$(basename $(notdir $@))" | sed -r 's/mdv201[01]\.[01]//')
 ifeq ($(v),0)
 	output = &>/dev/null
 	at = @
@@ -133,7 +134,7 @@ $(reportpackages):
 	$(at)-sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
 		--target=$(archat)'  2>&1 | tee -a .log $(output)
 	$(at)# check if srpm was built. if failed, keep log
-	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat) ] ; then \
+	$(at)if [ ! -f $(chrootdir)/home/$(user)/rpmbuild/SRPMS/$(pkgat_mdv2000) ] ; then \
 		cp .log $(failedlogdir)/$(notdir $@).$$(date +"%Y%m%d.%H%M%S.%N").log; \
 		echo "no srpm" > $@; \
 	else \
