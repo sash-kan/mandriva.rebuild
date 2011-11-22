@@ -1,0 +1,12 @@
+--- SPECS/libpaper.spec.orig	2011-05-02 16:07:16.000000000 +0000
++++ SPECS/libpaper.spec	2011-11-22 10:49:13.563230925 +0000
+@@ -15,9 +15,7 @@ Source0:	http://ftp.debian.org/debian/po
+ # https://bugzilla.redhat.com/show_bug.cgi?id=458833
+ Patch0:		libpaper-useglibcfallback.patch
+ Patch1:		libpaper-1.1.23-debianbug475683.patch
+-%ifarch x86_64
+ BuildRequires:	chrpath
+-%endif
+ BuildRoot:	%{_tmppath}/%{name}-%{version}-buildroot
+ 
+ %description
