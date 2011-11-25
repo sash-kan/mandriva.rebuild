@@ -1,0 +1,10 @@
+--- SPECS/portreserve.spec.orig	2011-06-26 09:39:41.000000000 +0000
++++ SPECS/portreserve.spec	2011-11-25 13:35:49.715319663 +0000
+@@ -12,6 +12,7 @@ Patch1:		portreserve-0.0.0-socket_dir.di
+ Requires(pre): rpm-helper
+ Requires(postun): rpm-helper
+ BuildRequires:	xmlto
++BuildRequires:	docbook-style-xsl
+ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
+ 
+ %description
