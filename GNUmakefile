@@ -85,6 +85,8 @@ $(chroottarsarchdir):
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
 	$(at)sudo chroot $@ sh -c 'cd /var/lib/rpm && db51_recover && rpm --rebuilddb' $(output)
+	# create /dev/urandom if not exists
+	$(at)[ -f $@/dev/urandom ] || sudo chroot $@ mknod -m 644 /dev/urandom c 1 9 $(output)
 	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
