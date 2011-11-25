@@ -112,11 +112,8 @@ $(reportpackages):
 	$(at)[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted $(output)
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
-	$(at)# install buildreqs
+	$(at)# copy package to /tmp
 	$(at)sudo cp -P $(cachedir)/$(pkgat) $(chrootdir)/tmp $(output)
-	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm --auto \
-		--buildrequires \
-		/tmp/$(pkgat) 2>&1 | tee .log $(output)
 	$(at)# create user
 	$(at)sudo chroot $(chrootdir) adduser $(user) $(output)
 	$(at)# install file
@@ -125,11 +122,12 @@ $(reportpackages):
 	$(at)if [ -f "patches/$(pkgat).patch" ] ; then \
 		sudo cp "patches/$(pkgat).patch" $(chrootdir)/tmp; \
 		sudo chroot $(chrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(pkgat).patch'; \
-		# if the patch fixes builddeps, then we should try to install them after applying \
-		sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm \
-			--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//') \
-			2>&1 | tee -a .log; \
 		else :; fi $(output)
+	$(at)# install buildreqs
+	$(at)# if the patch fixes builddeps, then we should try to install them after applying
+	$(at)sudo chroot $(chrootdir) urpmi --noclean --no-suggests --excludedocs --no-verify-rpm \
+		--auto $$(ls $(chrootdir)/home/$(user)/rpmbuild/SPECS/*.spec | sed 's/^$(chrootdir)//') \
+		2>&1 | tee .log;
 	$(at)# rpmbuild
 	$(at)-sudo chroot $(chrootdir) su - $(user) -c '/usr/bin/rpmbuild -ba rpmbuild/SPECS/*.spec \
 		--target=$(archat)'  2>&1 | tee -a .log $(output)
