@@ -1,0 +1,11 @@
+--- SPECS/rt3090-firmware.spec.orig	2009-08-10 19:32:41.000000000 +0000
++++ SPECS/rt3090-firmware.spec	2011-11-28 14:46:01.000000000 +0000
+@@ -19,7 +19,7 @@ This package contains the firmware files
+ 
+ %prep
+ 
+-%build
++%setup -cT
+ 
+ %install
+ rm -rf %{buildroot}
