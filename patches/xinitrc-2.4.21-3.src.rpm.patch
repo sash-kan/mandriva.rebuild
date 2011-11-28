@@ -1,0 +1,11 @@
+--- SPECS/xinitrc.spec.orig	2011-05-06 23:01:48.000000000 +0000
++++ SPECS/xinitrc.spec	2011-11-28 15:19:07.000000000 +0000
+@@ -52,6 +52,8 @@ to configure your X Window System sessio
+ 
+ %prep
+ 
++%setup -cT
++
+ %install
+ rm -rf %{buildroot}
+ 
