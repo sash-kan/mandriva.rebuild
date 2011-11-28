@@ -1,0 +1,11 @@
+--- SPECS/rootcerts.spec.orig	2011-11-28 14:00:44.000000000 +0000
++++ SPECS/rootcerts.spec	2011-11-28 14:01:28.000000000 +0000
+@@ -21,7 +21,7 @@ Name:		rootcerts
+ # BuildRequires: rootcerts >= 0:20070402.00, for example
+ # - NEVER specifying the %%{release}
+ Epoch:		1
+-Version:	20111103.00
++Version:	20110902.00
+ Release:	%mkrel 1
+ License:	GPL
+ Group:		System/Servers
