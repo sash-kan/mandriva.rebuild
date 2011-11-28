@@ -1,0 +1,11 @@
+--- SPECS/psyncclient.spec.orig	2011-11-10 17:12:22.000000000 +0000
++++ SPECS/psyncclient.spec	2011-11-28 11:01:13.000000000 +0000
+@@ -1,7 +1,7 @@
+ Summary:       MandrivaSync client
+ Name:          psyncclient
+ Version:       0.1
+-Release:       22
++Release:       19
+ License:       GPLv2
+ Group:         Graphical desktop/KDE
+ Source:        %{name}-%{version}.tar.gz
