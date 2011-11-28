@@ -1,0 +1,10 @@
+--- SPECS/xulrunner.spec.orig	2011-06-29 21:54:11.000000000 +0000
++++ SPECS/xulrunner.spec	2011-11-28 15:56:30.000000000 +0000
+@@ -25,7 +25,6 @@
+ %define release 0
+ %else
+ # Old distros
+-%define subrel 3
+ %define release %mkrel 0
+ %endif
+ 
