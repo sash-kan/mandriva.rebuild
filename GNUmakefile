@@ -85,8 +85,6 @@ $(chroottarsarchdir):
 		$(withoutatu) shadow-utils rpm tar rpm-build \
 		rpm-mandriva-setup urpmi rsync bzip2 shadow-utils locales-en $(output)
 	$(at)sudo chroot $@ sh -c 'cd /var/lib/rpm && db51_recover && rpm --rebuilddb' $(output)
-	# create /dev/urandom if not exists
-	$(at)[ -f $@/dev/urandom ] || sudo chroot $@ mknod -m 644 /dev/urandom c 1 9 $(output)
 	$(at)# umount sys+proc
 	$(at)-[ -f .procmounted.$(archat) ] && sudo umount -lf $@/proc; : $(output)
 	$(at)-[ -f .sysmounted.$(archat) ] && sudo umount -lf $@/sys; : $(output)
@@ -102,8 +100,10 @@ $(reportpackages):
 	$(at)# umount sys+proc
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .devptsmounted ] && sudo umount -lf $(chrootdir)/dev/pts; : $(output)
+	$(at)-[ -f .devmounted ] && sudo umount -lf $(chrootdir)/dev; : $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
-	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .devmounted .devptsmounted .mirmounted $(output)
 	$(at)# remove chroot
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 	$(at)# untar chroot
@@ -111,6 +111,8 @@ $(reportpackages):
 	$(at)sudo tar -xf $(chroottardir)/$(archat).tar -C $(chrootdir) $(output)
 	$(at)sudo mkdir -p $(chrootdir)$(mirror)
 	$(at)# mount sys+proc
+	$(at)[ ! -f .devmounted ] && sudo mount -o bind /dev $(chrootdir)/dev && touch .devmounted $(output)
+	$(at)[ ! -f .devptsmounted ] && sudo mount -o bind /dev/pts $(chrootdir)/dev/pts && touch .devptsmounted $(output)
 	$(at)[ ! -f .procmounted ] && sudo mount -o bind /proc $(chrootdir)/proc && touch .procmounted $(output)
 	$(at)[ ! -f .sysmounted ] && sudo mount -o bind /sys $(chrootdir)/sys && touch .sysmounted $(output)
 	$(at)[ ! -f .mirmounted ] && sudo mount -o bind $(mirror) $(chrootdir)/$(mirror) && touch .mirmounted $(output)
@@ -145,8 +147,10 @@ $(reportpackages):
 	$(at)# umount sys+proc
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .devptsmounted ] && sudo umount -lf $(chrootdir)/dev/pts; : $(output)
+	$(at)-[ -f .devmounted ] && sudo umount -lf $(chrootdir)/dev; : $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
-	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .devmounted .devptsmounted .mirmounted $(output)
 
 $(srpmsincache):
 	$(at)if [ -f "diversion/$(notdir $@)" ] ; \
@@ -171,8 +175,10 @@ delete.%:
 delete.chrootdir:
 	$(at)-[ -f .sysmounted ] && sudo umount -lf $(chrootdir)/sys; : $(output)
 	$(at)-[ -f .procmounted ] && sudo umount -lf $(chrootdir)/proc; : $(output)
+	$(at)-[ -f .devptsmounted ] && sudo umount -lf $(chrootdir)/dev/pts; : $(output)
+	$(at)-[ -f .devmounted ] && sudo umount -lf $(chrootdir)/dev; : $(output)
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
-	$(at)-rm -f .sysmounted .procmounted .mirmounted $(output)
+	$(at)-rm -f .sysmounted .procmounted .devmounted .devptsmounted .mirmounted $(output)
 	$(at)-sudo rm -rf $(chrootdir) $(output)
 
 delete.chroottardir:
