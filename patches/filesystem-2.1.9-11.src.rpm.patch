@@ -1,0 +1,12 @@
+--- SPECS/filesystem.spec.orig	2011-05-08 04:21:27.000000000 +0000
++++ SPECS/filesystem.spec	2011-11-29 11:23:08.000000000 +0000
+@@ -13,6 +13,9 @@ a Mandriva Linux system.  Filesystem  co
+ for a Linux operating system, including the correct permissions for the
+ directories.
+ 
++%prep
++%setup -cT
++
+ %install
+ mkdir -p %{buildroot}
+ 
