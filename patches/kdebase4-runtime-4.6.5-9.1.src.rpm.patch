@@ -1,0 +1,11 @@
+--- SPECS/kdebase4-runtime.spec.orig	2011-11-11 20:58:20.000000000 +0000
++++ SPECS/kdebase4-runtime.spec	2011-11-29 19:01:05.471289513 +0000
+@@ -8,7 +8,7 @@
+ Name: kdebase4-runtime
+ Summary: K Desktop Environment - Base Runtime
+ Version: 4.6.5
+-Release: 9.2
++Release: 9.1
+ Epoch: 1
+ Group: Graphical desktop/KDE
+ License: GPL
