@@ -1,0 +1,10 @@
+--- SPECS/cpufreq.spec.orig	2011-05-03 03:45:32.000000000 +0000
++++ SPECS/cpufreq.spec	2011-11-29 14:40:23.000000000 +0000
+@@ -21,6 +21,7 @@ Requires:  pciutils, sed, gawk, grep, co
+ cpufreq is a simple initscript to set CPU frequency settings.
+ 
+ %prep
++%setup -cT
+ 
+ %build
+ 
