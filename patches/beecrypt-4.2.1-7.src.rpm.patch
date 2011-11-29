@@ -1,0 +1,10 @@
+--- SPECS/beecrypt.spec.orig	2011-06-05 16:55:57.000000000 +0000
++++ SPECS/beecrypt.spec	2011-11-29 16:25:04.000000000 +0000
+@@ -46,6 +46,7 @@ Patch3:		beecrypt-4.2.1-py_platsitedir.d
+ BuildRequires:	doxygen
+ BuildRequires:	tetex-dvips
+ BuildRequires:	tetex-latex
++BuildRequires:	texlive-fontsextra
+ BuildRequires:	graphviz
+ BuildRequires:	m4
+ BuildRequires:	libgomp-devel
