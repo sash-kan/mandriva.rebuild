@@ -1,0 +1,12 @@
+--- SPECS/crontabs.spec.orig	2011-05-03 03:48:10.000000000 +0000
++++ SPECS/crontabs.spec	2011-11-29 11:40:10.000000000 +0000
+@@ -20,6 +20,9 @@ scheduled, it executes them.
+ Crontabs handles a basic system function, so it should be installed on
+ your system.
+ 
++%prep
++%setup -cT
++
+ %install
+ rm -rf %{buildroot}
+ 
