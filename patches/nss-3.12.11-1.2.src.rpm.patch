@@ -1,0 +1,13 @@
+--- SPECS/nss.spec.orig	2011-08-12 13:17:15.000000000 +0000
++++ SPECS/nss.spec	2011-11-29 08:38:32.718391035 +0000
+@@ -14,8 +14,8 @@
+ %define release %mkrel 1
+ %else
+ # Old distros
+-%define subrel 1
+-%define release %mkrel 0
++%define subrel 2
++%define release %mkrel 1
+ %endif
+ 
+ # this seems fragile, so require the exact version or later (#58754)
