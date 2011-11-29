@@ -1,0 +1,10 @@
+--- SPECS/initrd-firmware.spec.orig	2010-05-19 07:45:44.000000000 +0000
++++ SPECS/initrd-firmware.spec	2011-11-29 17:33:26.000000000 +0000
+@@ -21,6 +21,7 @@ BuildArch: noarch
+ Initrd wich contains non-free firmware
+ 
+ %prep
++%setup -cT
+ 
+ %build
+ mkdir -p $RPM_BUILD_DIR/%name-%version/
