@@ -64,6 +64,10 @@ endif
 
 all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(failedlogdir) $(chroottars) $(srpmsincache) $(reportpackages)
 
+srpms.list:
+	touch $@
+	$(warning create empty $@)
+
 # build initial chroot
 $(chroottarsarchdir): 
 	$(at)# umount sys+proc
