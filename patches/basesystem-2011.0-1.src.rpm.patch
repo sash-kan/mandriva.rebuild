@@ -1,0 +1,11 @@
+--- SPECS/basesystem.spec.orig	2011-04-19 12:47:35.000000000 +0000
++++ SPECS/basesystem.spec	2011-11-29 18:31:52.000000000 +0000
+@@ -79,6 +79,8 @@ kernel-uml, using urpmi %{name}-uml  --r
+ %files minimal
+ %files uml
+ 
++%prep
++%setup
+ 
+ %changelog
+ * Tue Apr 19 2011 Antoine Ginies <aginies@mandriva.com> 2011.0-1mdv2011.0
