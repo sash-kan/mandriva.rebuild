@@ -1,0 +1,12 @@
+--- SPECS/firefox-l10n.spec.orig	2011-09-29 21:35:55.000000000 +0000
++++ SPECS/firefox-l10n.spec	2011-11-29 15:27:42.000000000 +0000
+@@ -226,6 +226,9 @@ Localizations for Firefox web browser.
+ 	)
+ }
+ 
++%prep
++%setup -cT
++
+ %install
+ rm -rf %{buildroot}
+ 
