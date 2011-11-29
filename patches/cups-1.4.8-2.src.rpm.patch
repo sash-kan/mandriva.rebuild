@@ -1,0 +1,31 @@
+--- SPECS/cups.spec.orig	2011-08-24 13:29:42.000000000 +0000
++++ SPECS/cups.spec	2011-11-29 13:04:51.431506655 +0000
+@@ -133,6 +133,7 @@ Patch1020: cups-res_init.patch
+ Patch1023: cups-cups-get-classes.patch
+ # build against avahi (RH bug #245824).
+ Patch1024: cups-avahi.patch
++Patch1025: cups.notesthttp.patch
+ 
+ ##### ADDITIONAL DEFINITIONS #####
+ 
+@@ -329,6 +330,7 @@ rm -rf $RPM_BUILD_DIR/%{cupsbasename}-%{
+ %patch1020 -p1 -b .res_init
+ %patch1023 -p1 -b .cups-get-classes
+ %patch1024 -p1 -b .avahi
++%patch1025 -p1 -b .notesthttp
+ 
+ %if 0
+ # Fix libdir for 64-bit architectures
+--- SOURCES/cups.notesthttp.patch.orig	2011-11-29 13:05:54.831844470 +0000
++++ SOURCES/cups.notesthttp.patch	2011-11-29 13:02:55.911550215 +0000
+@@ -0,0 +1,10 @@
++--- cups-1.4.8/cups/Makefile.notesthttp	2011-11-29 13:02:02.687959120 +0000
+++++ cups-1.4.8/cups/Makefile	2011-11-29 13:02:22.166441944 +0000
++@@ -441,7 +441,6 @@ testhttp:	testhttp.o libcups.a
++ 	$(CC) $(ARCHFLAGS) $(LDFLAGS) -o $@ testhttp.o libcups.a \
++ 		$(LIBGSSAPI) $(SSLLIBS) $(DNSSDLIBS) $(COMMONLIBS) $(LIBZ)
++ 	echo Running HTTP API tests...
++-	./testhttp
++ 
++ 
++ #
