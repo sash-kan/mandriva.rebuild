@@ -1,0 +1,10 @@
+--- SPECS/xdg-utils.spec.orig	2011-05-08 05:01:38.000000000 +0000
++++ SPECS/xdg-utils.spec	2011-11-30 10:06:18.000000000 +0000
+@@ -19,6 +19,7 @@ BuildRequires:	libxslt-proc
+ BuildRequires:	gawk
+ BuildRequires:	xmlto lynx
+ BuildRequires:	docbook-dtd412-xml
++BuildRequires:	docbook-style-xsl
+ Requires:	desktop-file-utils
+ Requires:       xprop xset
+ BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-buildroot
