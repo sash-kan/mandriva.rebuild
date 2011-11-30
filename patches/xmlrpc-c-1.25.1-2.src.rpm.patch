@@ -1,0 +1,51 @@
+--- SPECS/xmlrpc-c.spec.orig	2011-05-07 06:14:40.000000000 +0000
++++ SPECS/xmlrpc-c.spec	2011-11-30 09:39:13.000000000 +0000
+@@ -22,6 +22,7 @@ Patch107: xmlrpc-c-uninit-curl.patch
+ Patch108: xmlrpc-c-30x-redirect.patch
+ Patch109: xmlrpc-c-check-vasprintf-return-value.patch
+ Patch110: xmlrpc-c-include-string_int.h.patch
++Patch111: xmlrpc.nocurltypes.patch
+ BuildRequires:	libxml2-devel
+ BuildRequires:	curl-devel
+ BuildRequires:	readline-devel
+@@ -78,6 +79,7 @@ This package contains the devlopement fi
+ %patch108 -p1
+ %patch109 -p1
+ %patch110 -p1
++%patch111 -p1
+ 
+ %build
+ export CXXFLAGS="%optflags -fpermissive"
+--- SOURCES/xmlrpc.nocurltypes.patch.orig	2011-11-30 09:38:40.000000000 +0000
++++ SOURCES/xmlrpc.nocurltypes.patch	2011-11-30 09:38:15.000000000 +0000
+@@ -0,0 +1,30 @@
++--- xmlrpc-c-1.25.1/lib/curl_transport/curlmulti.c.nocurltypes	2009-12-31 03:59:35.000000000 +0000
+++++ xmlrpc-c-1.25.1/lib/curl_transport/curlmulti.c	2011-11-30 09:37:13.000000000 +0000
++@@ -19,7 +19,6 @@
++ #endif
++ 
++ #include <curl/curl.h>
++-#include <curl/types.h>
++ #include <curl/easy.h>
++ #include <curl/multi.h>
++ 
++--- xmlrpc-c-1.25.1/lib/curl_transport/curltransaction.c.nocurltypes	2011-11-30 09:34:31.000000000 +0000
+++++ xmlrpc-c-1.25.1/lib/curl_transport/curltransaction.c	2011-11-30 09:37:23.000000000 +0000
++@@ -17,7 +17,6 @@
++ #include "version.h"
++ 
++ #include <curl/curl.h>
++-#include <curl/types.h>
++ #include <curl/easy.h>
++ 
++ #include "curlversion.h"
++--- xmlrpc-c-1.25.1/lib/curl_transport/xmlrpc_curl_transport.c.nocurltypes	2010-09-26 16:20:55.000000000 +0000
+++++ xmlrpc-c-1.25.1/lib/curl_transport/xmlrpc_curl_transport.c	2011-11-30 09:37:01.000000000 +0000
++@@ -85,7 +85,6 @@
++ #include "xmlrpc-c/time_int.h"
++ 
++ #include <curl/curl.h>
++-#include <curl/types.h>
++ #include <curl/easy.h>
++ #include <curl/multi.h>
++ 
