@@ -19,6 +19,12 @@ reportpackages = $(foreach p,$(addprefix $(reportdir)/,$(srpms)),$(foreach a,$(a
 
 srpmsincache = $(addprefix $(cachedir)/,$(srpms))
 
+rebuildeddir = rebuilded
+rebuildedpackages = $(addprefix $(rebuildeddir)/,$(patchedsrpms))
+patchedsrpms = $(basename $(shell ls patches))
+patchedsrpmsincache = $(addprefix $(cachedir)/,$(patchedsrpms))
+rebuildchrootdir = rebuildchroot
+
 repos1 = main contrib non-free
 repos2 = release updates
 repos3 = $(foreach r1,$(repos1),$(foreach r2,$(repos2),$(r1)/$(r2)))
@@ -63,6 +69,34 @@ endif
 .SECONDEXPANSION:
 
 all: srpms.list $(chroottardir) $(cachedir) $(reportdir) $(failedlogdir) $(chroottars) $(srpmsincache) $(reportpackages)
+
+justrebuild: $(rebuildeddir) $(chroottardir) $(cachedir) $$(word 1,$$(chroottars)) $(patchedsrpmsincache) $(rebuildedpackages) delete.rebuildchrootdir
+
+$(rebuildedpackages): $(rebuildchrootdir)
+	$(at)# rebuildedpackages
+	$(at)# $@=rebuilded/timezone-2011k-1.1.src.rpm $(notdir $@)=timezone-2011k-1.1.src.rpm $(cachedir)/$(notdir $@)=cache/timezone-2011k-1.1.src.rpm
+	$(at)# copy package to /tmp
+	$(at)sudo cp $(cachedir)/$(notdir $@) $(rebuildchrootdir)/tmp $(output)
+	$(at)# install file
+	$(at)sudo chroot $(rebuildchrootdir) su - $(user) -c '/bin/rpm --nodeps -i /tmp/$(notdir $@)' $(output)
+	$(at)# apply patch if exists
+	$(at)if [ -f "patches/$(notdir $@).patch" ] ; then \
+		sudo cp "patches/$(notdir $@).patch" $(rebuildchrootdir)/tmp; \
+		sudo chroot $(rebuildchrootdir) su - $(user) -c 'patch -d ~/rpmbuild -p0 -i /tmp/$(notdir $@).patch'; \
+		else :; fi $(output)
+	$(at)# rpmbuild
+	$(at)-sudo chroot $(rebuildchrootdir) su - $(user) -c '/usr/bin/rpmbuild -bs rpmbuild/SPECS/*.spec' \
+		2>&1 | tee -a .log $(output)
+	$(at)cp $(rebuildchrootdir)/home/$(user)/rpmbuild/SRPMS/* $(rebuildeddir) $(output)
+	$(at)-sudo chroot $(rebuildchrootdir) su - $(user) -c 'rm -rf ~/rpmbuild' $(output)
+	$(at)-sudo rm $(rebuildchrootdir)/tmp/$(notdir $@)* $(output)
+
+$(rebuildchrootdir):
+	echo $@
+	mkdir -p $@
+	$(at)[ -d $@/tmp ] || sudo tar -xf $(word 1,$(chroottars)) -C $@ $(output)
+	$(at)# create user
+	$(at)sudo chroot $@ adduser $(user) $(output)
 
 srpms.list:
 	touch $@
@@ -156,7 +190,7 @@ $(reportpackages):
 	$(at)-[ -f .mirmounted ] && sudo umount -lf $(chrootdir)/$(mirror); : $(output)
 	$(at)-rm -f .sysmounted .procmounted .devmounted .devptsmounted .mirmounted $(output)
 
-$(srpmsincache):
+$(srpmsincache) $(patchedsrpmsincache):
 	$(at)if [ -f "diversion/$(notdir $@)" ] ; \
 	then d=$$(cat "diversion/$(notdir $@)"); \
 	else d=$(notdir $@); fi; \
@@ -168,10 +202,10 @@ $(srpmsincache):
 		else ln -s $$p $@; fi $(output)
 	$(at)-rm -f .find.error $(output)
 
-$(cachedir) $(reportdir) $(chroottardir) $(failedlogdir):
+$(cachedir) $(reportdir) $(chroottardir) $(failedlogdir) $(rebuildeddir):
 	$(at)mkdir -p $@ $(output)
 
-clearall: delete.cachedir delete.reportdir delete.chroottardir delete.chrootdir delete.failedlogdir 
+clearall: delete.cachedir delete.reportdir delete.chroottardir delete.chrootdir delete.failedlogdir delete.rebuildchrootdir
 
 delete.%:
 	$(at)-sudo rm -rf $($*) $(output)
