@@ -1,0 +1,32 @@
+--- SPECS/gnutls.spec.orig	2011-07-10 16:04:18.000000000 +0000
++++ SPECS/gnutls.spec	2011-11-30 11:58:40.000000000 +0000
+@@ -17,6 +17,7 @@ URL:		http://www.gnutls.org
+ Source0:	http://ftp.gnu.org/pub/gnu/gnutls/%{name}-%{version}.tar.bz2
+ Source1:	http://ftp.gnu.org/pub/gnu/gnutls/%{name}-%{version}.tar.bz2.sig
+ Patch0:		gnutls-2.12.7-dsa-skiptests.patch
++Patch1:		gnutls-2.12.7.notests.patch
+ BuildRequires:	liblzo-devel
+ BuildRequires:	libgcrypt-devel >= %{libgcrypt_version}
+ BuildRequires:	libtasn1-devel >= 0.3.4
+@@ -68,6 +69,7 @@ programs/libraries that use %{name}.
+ %prep
+ %setup -q
+ %patch0 -p1
++%patch1 -p1 -b .notests
+ 
+ %build
+ %configure2_5x \
+--- SOURCES/gnutls-2.12.7.notests.patch.orig	2011-11-30 12:15:09.000000000 +0000
++++ SOURCES/gnutls-2.12.7.notests.patch	2011-11-30 11:57:41.000000000 +0000
+@@ -0,0 +1,11 @@
++--- gnutls-2.12.7/Makefile.am.notests	2011-04-08 00:30:44.000000000 +0000
+++++ gnutls-2.12.7/Makefile.am	2011-11-30 11:57:11.000000000 +0000
++@@ -22,7 +22,7 @@
++ 
++ DISTCHECK_CONFIGURE_FLAGS = --enable-gtk-doc
++ 
++-SUBDIRS = lib libextra gl src doc tests
+++SUBDIRS = lib libextra gl src doc
++ 
++ if HAVE_GUILE
++ SUBDIRS += guile
