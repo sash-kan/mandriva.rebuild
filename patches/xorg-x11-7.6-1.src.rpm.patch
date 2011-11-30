@@ -1,0 +1,11 @@
+--- SPECS/xorg-x11.spec.orig	2011-05-25 05:51:39.000000000 +0000
++++ SPECS/xorg-x11.spec	2011-11-30 09:49:42.000000000 +0000
+@@ -255,6 +255,8 @@ X11-100dpi-fonts. This package contains
+ 
+ #------------------------------------------------------------------------------
+ 
++%prep
++%setup -cT
+ 
+ %changelog
+ * Wed May 25 2011 Funda Wang <fwang@mandriva.org> 7.6-1
